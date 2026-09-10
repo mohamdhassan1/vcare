@@ -1,0 +1,23 @@
+{
+  "appTitle": "في كير",
+  "homeGreeting": "مرحباً، {name}!",
+  "@homeGreeting": {"placeholders": {"name": {"type": "String"}}},
+  "howAreYouToday": "كيف حالك اليوم؟",
+  "seeAll": "عرض الكل",
+  "retry": "إعادة المحاولة",
+  "logout": "تسجيل الخروج",
+  "profile": "الملف الشخصي",
+  "myAppointment": "مواعيدي",
+  "myFavorites": "المفضلة",
+  "settings": "الإعدادات",
+  "bookAppointment": "حجز موعد",
+  "search": "بحث",
+  "noDoctorsFound": "لم يتم العثور على أطباء.",
+  "noSpecialtiesFound": "لم يتم العثور على تخصصات.",
+  "somethingWentWrong": "حدث خطأ ما. حاول مرة أخرى."
+  "appearance": "المظهر",
+  "theme": "المظهر",
+  "light": "فاتح",
+  "dark": "داكن",
+  "systemDefault": "افتراضي النظام"
+}

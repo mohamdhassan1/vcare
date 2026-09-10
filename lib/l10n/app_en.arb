@@ -1,0 +1,23 @@
+{
+  "appTitle": "VCare",
+  "homeGreeting": "Hi, {name}!",
+  "@homeGreeting": {"placeholders": {"name": {"type": "String"}}},
+  "howAreYouToday": "How Are you Today?",
+  "seeAll": "See All",
+  "retry": "Retry",
+  "logout": "Logout",
+  "profile": "Profile",
+  "myAppointment": "My Appointment",
+  "myFavorites": "My Favorites",
+  "settings": "Settings",
+  "bookAppointment": "Book Appointment",
+  "search": "Search",
+  "noDoctorsFound": "No doctors found.",
+  "noSpecialtiesFound": "No specialties found.",
+  "somethingWentWrong": "Something went wrong. Please try again."
+  "appearance": "Appearance",
+  "theme": "Theme",
+  "light": "Light",
+  "dark": "Dark",
+  "systemDefault": "System Default"
+}
