@@ -17,26 +17,48 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final DoctorRepository _doctorRepository;
   final SpecializationRepository _specializationRepository;
 
+  /// Bloc runs event handlers concurrently by default, so when the user
+  /// types "A", "AB", "ABC" three requests are in flight at once and
+  /// each would emit whenever *its* response arrives — a slow "A" could
+  /// land last and overwrite the "ABC" results. Every request takes a
+  /// ticket from this counter; only the holder of the newest ticket is
+  /// allowed to emit. (Same effect as bloc_concurrency's restartable(),
+  /// without adding a dependency.)
+  int _latestRequestId = 0;
+
+  int _nextRequestId() => ++_latestRequestId;
+  bool _isStale(int requestId) => requestId != _latestRequestId;
+
   Future<void> _onOpened(SearchOpened event, Emitter<SearchState> emit) async {
+    final requestId = _nextRequestId();
     emit(const SearchLoading());
     try {
       final doctors = await _doctorRepository.getDoctors();
       final specializations =
           await _specializationRepository.getSpecializations();
+      if (_isStale(requestId)) return;
+      // A requested specialty that the server list does not contain is
+      // ignored, so the filter can never hide every doctor by mistake.
+      final knownId = specializations.any((s) => s.id == event.specializationId)
+          ? event.specializationId
+          : null;
       emit(SearchLoaded(
           doctors: doctors,
           specializations: specializations,
-          selectedSpecializationId: null,
+          selectedSpecializationId: knownId,
           query: ''));
     } on AppException catch (e) {
-      emit(SearchError(e.message));
+      if (_isStale(requestId)) return;
+      emit(SearchError(AppErrorInfo.from(e)));
     } catch (e) {
-      emit(const SearchError('Something went wrong. Please try again.'));
+      if (_isStale(requestId)) return;
+      emit(const SearchError(AppErrorInfo.unknown));
     }
   }
 
   Future<void> _onQueryChanged(
       SearchQueryChanged event, Emitter<SearchState> emit) async {
+    final requestId = _nextRequestId();
     final current = state;
     final List<SpecializationModel> previousSpecializations =
         current is SearchLoaded
@@ -53,6 +75,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       final specializations = previousSpecializations.isNotEmpty
           ? previousSpecializations
           : await _specializationRepository.getSpecializations();
+      // A newer query was issued while we were waiting: drop this
+      // result so it can never replace the newer one.
+      if (_isStale(requestId)) return;
       emit(SearchLoaded(
         doctors: doctors,
         specializations: specializations,
@@ -60,9 +85,11 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         query: event.query,
       ));
     } on AppException catch (e) {
-      emit(SearchError(e.message));
+      if (_isStale(requestId)) return;
+      emit(SearchError(AppErrorInfo.from(e)));
     } catch (e) {
-      emit(const SearchError('Something went wrong. Please try again.'));
+      if (_isStale(requestId)) return;
+      emit(const SearchError(AppErrorInfo.unknown));
     }
   }
 

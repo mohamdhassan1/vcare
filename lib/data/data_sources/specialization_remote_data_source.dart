@@ -27,7 +27,8 @@ class SpecializationRemoteDataSource {
     } catch (e) {
       debugPrint('[SPECIALIZATIONS] Unexpected error reading response: $e');
       throw ServerException(
-          'Could not read specialization data from the server response: $e');
+          'Could not read specialization data from the server response: $e',
+          code: AppErrorCode.invalidResponse);
     }
   }
 }

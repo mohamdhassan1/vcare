@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../data/models/doctor_model.dart';
 import '../../../data/models/specialization_model.dart';
 
@@ -66,8 +67,10 @@ class SearchLoaded extends SearchState {
 }
 
 class SearchError extends SearchState {
-  final String message;
-  const SearchError(this.message);
+  /// Coded failure the UI localizes; `message` is the English fallback.
+  final AppErrorInfo error;
+  const SearchError(this.error);
+  String get message => error.message;
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [error];
 }

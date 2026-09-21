@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/routes/app_routes.dart';
 import '../../../core/theme/app_dimensions.dart';
-import '../../../core/theme/app_text_styles.dart';
 import '../../../data/models/doctor_model.dart';
 import '../../../data/repositories/doctor_repository.dart';
+import '../../../l10n/l10n.dart';
 import '../../../logic/blocs/favorites/favorites_bloc.dart';
 import '../../../logic/blocs/favorites/favorites_state.dart';
+import '../../widgets/content_constraint.dart';
 import '../../widgets/doctor_card.dart';
 import '../../widgets/empty_state_view.dart';
+import '../../widgets/error_state_view.dart';
+import '../../widgets/motion.dart';
+import '../../widgets/skeleton.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -33,58 +38,64 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: const Text('My Favorites')),
-      body: FutureBuilder<List<DoctorModel>>(
-        future: _future,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.spaceLg),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Something went wrong. Please try again.', style: AppTextStyles.bodyMedium, textAlign: TextAlign.center),
-                    const SizedBox(height: AppDimensions.spaceMd),
-                    ElevatedButton(onPressed: _refresh, child: const Text('Retry')),
-                  ],
-                ),
-              ),
-            );
-          }
-          final allDoctors = snapshot.data ?? [];
-          return BlocBuilder<FavoritesBloc, FavoritesState>(
-            builder: (context, state) {
-              final ids = state is FavoritesLoaded ? state.favoriteIds : <int>{};
-              final favorites = allDoctors.where((d) => ids.contains(d.id)).toList();
-              if (favorites.isEmpty) {
-                return const EmptyStateView(
-                  message: 'No favorites yet.\nTap the heart icon on a doctor to save them here.',
-                  icon: Icons.favorite_border_rounded,
-                );
-              }
-              return RefreshIndicator(
-                onRefresh: _refresh,
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(AppDimensions.spaceLg),
-                  itemCount: favorites.length,
-                  itemBuilder: (context, i) {
-                    final doctor = favorites[i];
-                    return DoctorCard(
-                      doctor: doctor,
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.doctorDetails, arguments: doctor.id),
-                    );
-                  },
-                ),
+      appBar: AppBar(title: Text(l10n.myFavorites)),
+      body: ContentConstraint(
+        child: FutureBuilder<List<DoctorModel>>(
+          future: _future,
+          builder: (context, snapshot) =>
+              StateSwitcher(child: _body(context, snapshot)),
+        ),
+      ),
+    );
+  }
+
+  Widget _body(
+      BuildContext context, AsyncSnapshot<List<DoctorModel>> snapshot) {
+    final l10n = context.l10n;
+    if (snapshot.connectionState != ConnectionState.done) {
+      return const SkeletonList(itemCount: 3);
+    }
+    if (snapshot.hasError) {
+      return ErrorStateView(
+        error: AppErrorInfo.from(snapshot.error!),
+        onRetry: _refresh,
+      );
+    }
+    final allDoctors = snapshot.data ?? [];
+    return BlocBuilder<FavoritesBloc, FavoritesState>(
+      builder: (context, state) {
+        final ids = state.favoriteIds;
+        final favorites = allDoctors.where((d) => ids.contains(d.id)).toList();
+        if (favorites.isEmpty) {
+          // Not a dead end: offer the doctor list to save someone.
+          return EmptyStateView(
+            message: l10n.noFavoritesYet,
+            icon: Icons.favorite_border_rounded,
+            actionLabel: l10n.browseDoctors,
+            onAction: () => Navigator.pushNamed(context, AppRoutes.doctorList),
+          );
+        }
+        return RefreshIndicator(
+          onRefresh: _refresh,
+          child: ListView.builder(
+            padding: const EdgeInsets.all(AppDimensions.spaceLg),
+            itemCount: favorites.length,
+            itemBuilder: (context, i) {
+              final doctor = favorites[i];
+              return DoctorCard(
+                doctor: doctor,
+                onTap: () => Navigator.pushNamed(
+                    context, AppRoutes.doctorDetails, arguments: {
+                  'doctorId': doctor.id,
+                  'imageUrl': doctor.imageUrl
+                }),
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

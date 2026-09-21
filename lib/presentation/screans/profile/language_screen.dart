@@ -1,52 +1,46 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import '../../../core/locale/locale_controller.dart';
 import '../../../core/theme/app_dimensions.dart';
+import '../../../l10n/l10n.dart';
+import '../../widgets/content_constraint.dart';
+import '../../widgets/settings_tiles.dart';
 
-class LanguageScreen extends StatefulWidget {
+/// Language picker. Selecting a language applies and persists it
+/// immediately (the whole app re-renders in place) — the same
+/// interaction as the Theme screen, so the two settings feel alike.
+///
+/// Each language is listed in its own script ("English" / "العربية")
+/// on purpose: a user who can't read the current language must still
+/// be able to find their own.
+class LanguageScreen extends StatelessWidget {
   const LanguageScreen({super.key});
-  @override
-  State<LanguageScreen> createState() => _LanguageScreenState();
-}
-
-class _LanguageScreenState extends State<LanguageScreen> {
-  late String _selected = context.read<LocaleController>().value.languageCode;
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<LocaleController>();
+    final selected = controller.value.languageCode;
     return Scaffold(
-      appBar: AppBar(title: const Text('Language')),
-      body: Column(children: [
-        Expanded(
-            child: ListView(children: [
-          RadioListTile<String>(
-              title: const Text('English'),
-              value: 'en',
-              groupValue: _selected,
-              onChanged: (v) => setState(() => _selected = v!)),
-          RadioListTile<String>(
-              title: const Text('العربية'),
-              value: 'ar',
-              groupValue: _selected,
-              onChanged: (v) => setState(() => _selected = v!)),
-        ])),
-        Padding(
+      appBar: AppBar(title: Text(context.l10n.language)),
+      body: ContentConstraint(
+        child: ListView(
           padding: const EdgeInsets.all(AppDimensions.spaceLg),
-          child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () async {
-                  await context
-                      .read<LocaleController>()
-                      .setLocale(Locale(_selected));
-                  if (context.mounted) Navigator.pop(context);
-                },
-                child: const Text('Save'),
-              )),
+          children: [
+            SettingsRadioTile(
+              icon: Icons.language_rounded,
+              title: 'English',
+              selected: selected == 'en',
+              onTap: () => controller.setLocale(const Locale('en')),
+            ),
+            SettingsRadioTile(
+              icon: Icons.translate_rounded,
+              title: 'العربية',
+              selected: selected == 'ar',
+              onTap: () => controller.setLocale(const Locale('ar')),
+            ),
+          ],
         ),
-      ]),
+      ),
     );
   }
 }

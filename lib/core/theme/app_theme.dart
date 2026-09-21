@@ -1,175 +1,211 @@
 import 'package:flutter/material.dart';
-import 'app_colors.dart';
 import 'app_dimensions.dart';
+import 'app_page_transitions.dart';
+import 'app_palette.dart';
 import 'app_text_styles.dart';
 
+/// Light and Dark [ThemeData] for VCare.
+///
+/// Both are produced by the same [_build] so every component used in
+/// the app (inputs, buttons, chips, cards, sheets, dialogs, nav bar…)
+/// is defined once and gets the right colors from an [AppPalette].
+/// Widgets read mode-specific colors via `context.palette` and text
+/// colors via `context.textTheme` — never from light-only constants.
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get light {
-    return ThemeData(
+  static ThemeData get light => _build(AppPalette.light, Brightness.light);
+
+  static ThemeData get dark => _build(AppPalette.dark, Brightness.dark);
+
+  static ThemeData _build(AppPalette p, Brightness brightness) {
+    final radiusMd = BorderRadius.circular(AppDimensions.radiusMd);
+    final radiusLg = BorderRadius.circular(AppDimensions.radiusLg);
+
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: p.primary,
+      brightness: brightness,
+      primary: p.primary,
+      onPrimary: p.onPrimary,
+      surface: brightness == Brightness.light ? p.background : p.surface,
+      onSurface: p.textPrimary,
+      onSurfaceVariant: p.textSecondary,
+      outline: p.border,
+      error: p.error,
+    );
+
+    final theme = ThemeData(
       useMaterial3: true,
-      scaffoldBackgroundColor: AppColors.background,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-        primary: AppColors.primary,
-        surface: AppColors.background,
-        error: AppColors.error,
-      ),
+      brightness: brightness,
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: p.background,
+      canvasColor: p.background,
+      cardColor: p.surface,
+      dividerColor: p.divider,
+      extensions: [p],
+
+      // Text: primary color for headings/body, secondary for small text.
+      // Text widgets that use AppTextStyles.* inherit these colors.
       textTheme: TextTheme(
-        headlineLarge: AppTextStyles.h1,
-        headlineMedium: AppTextStyles.h2,
-        headlineSmall: AppTextStyles.h3,
-        bodyLarge: AppTextStyles.bodyLarge,
-        bodyMedium: AppTextStyles.bodyMedium,
-        bodySmall: AppTextStyles.bodySmall,
-        labelLarge: AppTextStyles.button,
+        headlineLarge: AppTextStyles.h1.copyWith(color: p.textPrimary),
+        headlineMedium: AppTextStyles.h2.copyWith(color: p.textPrimary),
+        headlineSmall: AppTextStyles.h3.copyWith(color: p.textPrimary),
+        titleMedium: AppTextStyles.bodyLarge.copyWith(color: p.textPrimary),
+        bodyLarge: AppTextStyles.bodyLarge.copyWith(color: p.textPrimary),
+        bodyMedium: AppTextStyles.bodyMedium.copyWith(color: p.textPrimary),
+        bodySmall: AppTextStyles.bodySmall.copyWith(color: p.textSecondary),
+        labelSmall: AppTextStyles.caption.copyWith(color: p.textSecondary),
+        labelLarge: AppTextStyles.button.copyWith(color: p.onPrimary),
       ),
+      iconTheme: IconThemeData(color: p.textPrimary),
+
+      // Same fade+slide on every platform (web included).
+      pageTransitionsTheme: const PageTransitionsTheme(builders: {
+        TargetPlatform.android: VCarePageTransitionsBuilder(),
+        TargetPlatform.iOS: VCarePageTransitionsBuilder(),
+        TargetPlatform.linux: VCarePageTransitionsBuilder(),
+        TargetPlatform.macOS: VCarePageTransitionsBuilder(),
+        TargetPlatform.windows: VCarePageTransitionsBuilder(),
+        TargetPlatform.fuchsia: VCarePageTransitionsBuilder(),
+      }),
+
+      // Flat bar with a hairline underneath so the header stays
+      // anchored when a white body scrolls beneath a white bar.
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.background,
-        surfaceTintColor: AppColors.background,
+        backgroundColor: p.background,
+        surfaceTintColor: p.background,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        shape: Border(bottom: BorderSide(color: p.divider)),
         centerTitle: false,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: AppTextStyles.h3,
+        iconTheme: IconThemeData(color: p.textPrimary),
+        titleTextStyle: AppTextStyles.h3.copyWith(color: p.textPrimary),
       ),
+
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: AppColors.textOnPrimary,
+          backgroundColor: p.primary,
+          foregroundColor: p.onPrimary,
+          disabledBackgroundColor: p.primary.withValues(alpha: 0.5),
+          disabledForegroundColor: p.onPrimary.withValues(alpha: 0.8),
           minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
           textStyle: AppTextStyles.button,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
+          shape: RoundedRectangleBorder(borderRadius: radiusMd),
           elevation: 0,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary),
+          foregroundColor: p.primary,
+          side: BorderSide(color: p.primary),
           minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
-          textStyle: AppTextStyles.button.copyWith(color: AppColors.primary),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
+          textStyle: AppTextStyles.button,
+          shape: RoundedRectangleBorder(borderRadius: radiusMd),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-            foregroundColor: AppColors.primary, textStyle: AppTextStyles.link),
+            foregroundColor: p.primary, textStyle: AppTextStyles.link),
       ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: p.primary,
+        foregroundColor: p.onPrimary,
+      ),
+
+      // Inputs: filled, no border at rest, brand border when focused.
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.inputFill,
-        hintStyle: AppTextStyles.bodyMedium.copyWith(color: AppColors.textHint),
+        fillColor: p.inputFill,
+        hintStyle: AppTextStyles.bodyMedium.copyWith(color: p.textHint),
+        prefixIconColor: p.textSecondary,
+        suffixIconColor: p.textSecondary,
         contentPadding: const EdgeInsets.symmetric(
             horizontal: AppDimensions.spaceMd, vertical: AppDimensions.spaceMd),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            borderSide: BorderSide.none),
+            borderRadius: radiusMd, borderSide: BorderSide.none),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            borderSide: BorderSide.none),
+            borderRadius: radiusMd, borderSide: BorderSide.none),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            borderSide: const BorderSide(color: AppColors.primary, width: 1.5)),
+            borderRadius: radiusMd,
+            borderSide: BorderSide(color: p.primary, width: 1.5)),
         errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            borderSide: const BorderSide(color: AppColors.error, width: 1.2)),
+            borderRadius: radiusMd,
+            borderSide: BorderSide(color: p.error, width: 1.2)),
+        focusedErrorBorder: OutlineInputBorder(
+            borderRadius: radiusMd,
+            borderSide: BorderSide(color: p.error, width: 1.5)),
       ),
-      dividerTheme: const DividerThemeData(
-          color: AppColors.divider, thickness: 1, space: 1),
-    );
-  }
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: p.primary,
+        selectionColor: p.primary.withValues(alpha: 0.3),
+        selectionHandleColor: p.primary,
+      ),
 
-  /// Real dark palette — dark grey surfaces (not pure black), same
-  /// brand blue kept recognizable, WCAG-reasonable text contrast.
-  static ThemeData get dark {
-    const bg = Color(0xFF121417);
-    const surface = Color(0xFF1E2126);
-    const inputFill = Color(0xFF262A31);
-    const textPrimary = Color(0xFFF2F3F5);
-    const textSecondary = Color(0xFFAAB0BA);
-    const textHint = Color(0xFF7C828C);
-    const divider = Color(0xFF2E323A);
-    const primary =
-        Color(0xFF5B9CFF); // slightly lightened brand blue for dark-bg contrast
-
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      scaffoldBackgroundColor: bg,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: primary,
-        brightness: Brightness.dark,
-        primary: primary,
-        surface: surface,
-        error: AppColors.error,
-      ),
-      textTheme: TextTheme(
-        headlineLarge: AppTextStyles.h1.copyWith(color: textPrimary),
-        headlineMedium: AppTextStyles.h2.copyWith(color: textPrimary),
-        headlineSmall: AppTextStyles.h3.copyWith(color: textPrimary),
-        bodyLarge: AppTextStyles.bodyLarge.copyWith(color: textPrimary),
-        bodyMedium: AppTextStyles.bodyMedium.copyWith(color: textPrimary),
-        bodySmall: AppTextStyles.bodySmall.copyWith(color: textSecondary),
-        labelLarge: AppTextStyles.button,
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: bg,
-        surfaceTintColor: bg,
+      // Surfaces.
+      cardTheme: CardThemeData(
+        color: p.surface,
         elevation: 0,
-        centerTitle: false,
-        iconTheme: const IconThemeData(color: textPrimary),
-        titleTextStyle: AppTextStyles.h3.copyWith(color: textPrimary),
+        shape: RoundedRectangleBorder(
+            borderRadius: radiusLg, side: BorderSide(color: p.cardBorder)),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primary,
-          foregroundColor: Colors.white,
-          minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
-          textStyle: AppTextStyles.button,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
-          elevation: 0,
-        ),
+      // Floating, rounded, high-contrast: dark on light, light on dark.
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: p.textPrimary,
+        contentTextStyle:
+            AppTextStyles.bodyMedium.copyWith(color: p.background),
+        actionTextColor:
+            brightness == Brightness.light ? p.primaryLight : p.primary,
+        shape: RoundedRectangleBorder(borderRadius: radiusMd),
+        insetPadding: const EdgeInsets.all(AppDimensions.spaceMd),
       ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: primary,
-          side: const BorderSide(color: primary),
-          minimumSize: const Size.fromHeight(AppDimensions.buttonHeight),
-          textStyle: AppTextStyles.button.copyWith(color: primary),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppDimensions.radiusMd)),
-        ),
+      chipTheme: ChipThemeData(
+        backgroundColor: p.surface,
+        selectedColor: p.primary,
+        disabledColor: p.surface,
+        labelStyle: AppTextStyles.bodySmall.copyWith(color: p.textPrimary),
+        secondaryLabelStyle:
+            AppTextStyles.bodySmall.copyWith(color: p.onPrimary),
+        side: BorderSide.none,
+        shape: RoundedRectangleBorder(borderRadius: radiusMd),
       ),
-      textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(foregroundColor: primary)),
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: inputFill,
-        hintStyle: AppTextStyles.bodyMedium.copyWith(color: textHint),
-        contentPadding: const EdgeInsets.symmetric(
-            horizontal: AppDimensions.spaceMd, vertical: AppDimensions.spaceMd),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            borderSide: BorderSide.none),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            borderSide: const BorderSide(color: primary, width: 1.5)),
-        errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppDimensions.radiusMd),
-            borderSide: const BorderSide(color: AppColors.error, width: 1.2)),
+      dividerTheme: DividerThemeData(color: p.divider, thickness: 1, space: 1),
+      listTileTheme: ListTileThemeData(
+        iconColor: p.textSecondary,
+        textColor: p.textPrimary,
       ),
-      dividerTheme:
-          const DividerThemeData(color: divider, thickness: 1, space: 1),
-      cardColor: surface,
-      bottomSheetTheme: const BottomSheetThemeData(backgroundColor: surface),
-      dialogTheme: const DialogThemeData(backgroundColor: surface),
+      expansionTileTheme: ExpansionTileThemeData(
+        iconColor: p.textPrimary,
+        collapsedIconColor: p.textSecondary,
+        textColor: p.textPrimary,
+        collapsedTextColor: p.textPrimary,
+      ),
+      bottomAppBarTheme: BottomAppBarThemeData(
+        color: p.background,
+        surfaceTintColor: p.background,
+      ),
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: p.overlay,
+        surfaceTintColor: p.overlay,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: p.overlay,
+        surfaceTintColor: p.overlay,
+        titleTextStyle: AppTextStyles.h3.copyWith(color: p.textPrimary),
+        contentTextStyle:
+            AppTextStyles.bodyMedium.copyWith(color: p.textPrimary),
+      ),
+      progressIndicatorTheme: ProgressIndicatorThemeData(color: p.primary),
+    );
+
+    // Material fills the text-theme slots we did not set from its own
+    // defaults; give those the bundled Arabic fallback too so any
+    // Material widget renders Arabic without a runtime font download.
+    const fallback = ['Inter', AppTextStyles.arabicFontFamily];
+    return theme.copyWith(
+      textTheme: theme.textTheme.apply(fontFamilyFallback: fallback),
+      primaryTextTheme:
+          theme.primaryTextTheme.apply(fontFamilyFallback: fallback),
     );
   }
 }

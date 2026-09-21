@@ -9,9 +9,22 @@ class ThemeController extends ValueNotifier<ThemeMode> {
   ThemeController(super.initial) : _storage = const FlutterSecureStorage();
   final FlutterSecureStorage _storage;
   static const _key = 'app_theme';
+  static const Duration _readTimeout = Duration(seconds: 5);
 
+  /// Called exactly once from `main()` before `runApp`, so the very
+  /// first frame already uses the persisted choice. Never throws: a
+  /// storage failure or hang falls back to the current value so it can
+  /// never block startup (same pattern as TokenStorage.getToken).
   Future<void> load() async {
-    final saved = await _storage.read(key: _key);
+    final String? saved;
+    try {
+      saved = await _storage
+          .read(key: _key)
+          .timeout(_readTimeout, onTimeout: () => null);
+    } catch (e) {
+      debugPrint('[THEME] Read failed: $e — keeping default.');
+      return;
+    }
     switch (saved) {
       case 'light':
         value = ThemeMode.light;

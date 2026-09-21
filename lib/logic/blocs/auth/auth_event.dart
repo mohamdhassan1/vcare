@@ -42,3 +42,9 @@ class SignInRequested extends AuthEvent {
 class LogoutRequested extends AuthEvent {
   const LogoutRequested();
 }
+
+/// Dispatched internally by [AuthBloc] when the API rejects the stored
+/// token (HTTP 401). Not sent from the UI.
+class SessionExpired extends AuthEvent {
+  const SessionExpired();
+}

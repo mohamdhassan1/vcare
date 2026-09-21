@@ -17,9 +17,9 @@ class DoctorBloc extends Bloc<DoctorEvent, DoctorState> {
       final doctors = await _repository.getDoctors();
       emit(DoctorLoaded(doctors));
     } on AppException catch (e) {
-      emit(DoctorError(e.message));
+      emit(DoctorError(AppErrorInfo.from(e)));
     } catch (e) {
-      emit(const DoctorError('Something went wrong. Please try again.'));
+      emit(const DoctorError(AppErrorInfo.unknown));
     }
   }
 }

@@ -8,17 +8,20 @@ class AuthResponseModel {
   factory AuthResponseModel.fromJson(dynamic json) {
     if (json is! Map<String, dynamic>) {
       throw const ServerException(
-          'Unexpected response from server. Please try again.');
+          'Unexpected response from server. Please try again.',
+          code: AppErrorCode.invalidResponse);
     }
     final rawData = json['data'];
     if (rawData is! Map<String, dynamic>) {
       throw const ServerException(
-          'Unexpected response from server. Please try again.');
+          'Unexpected response from server. Please try again.',
+          code: AppErrorCode.invalidResponse);
     }
     final token = rawData['token'];
     if (token is! String || token.isEmpty) {
       throw const ServerException(
-          'Login response did not include a valid session token.');
+          'Login response did not include a valid session token.',
+          code: AppErrorCode.invalidResponse);
     }
     final username = rawData['username'];
     return AuthResponseModel(

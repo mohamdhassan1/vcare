@@ -13,30 +13,37 @@ class UserRemoteDataSource {
     debugPrint('[PROFILE] REQUEST → GET ${ApiEndpoints.userProfile}');
     try {
       final response = await _apiClient.dio.get(ApiEndpoints.userProfile);
-      debugPrint(
-          '[PROFILE] RESPONSE status:${response.statusCode} body:${response.data}');
-      final profile =
-          UserProfileModel.fromJson(response.data as Map<String, dynamic>);
+      // Status only — the body is the user's PII.
+      debugPrint('[PROFILE] RESPONSE status:${response.statusCode}');
+      // The model unwraps the envelope itself (data may be a Map or a
+      // List), so no cast here — a surprising shape can't throw.
+      final profile = UserProfileModel.fromJson(response.data);
+      debugPrint('[PROFILE] Parsed: hasName:${profile.hasName} '
+          'hasEmail:${profile.email != null} hasPhone:${profile.phone != null} '
+          'hasGender:${profile.gender != null}');
       return profile;
     } on DioException catch (e) {
-      debugPrint(
-          '[PROFILE] RESPONSE ERROR status:${e.response?.statusCode} body:${e.response?.data}');
+      debugPrint('[PROFILE] RESPONSE ERROR status:${e.response?.statusCode}');
       throw mapDioException(e);
     }
   }
 
-  /// Matches the exact Postman "Update Profile" field set:
-  /// name, email, phone, gender, password. Password sent empty when
-  /// the user isn't changing it — matches every disabled/optional
-  /// field pattern already used by /auth/register in this project.
+  /// Matches the Postman "Update Profile" field set:
+  /// name, email, phone, gender, password.
+  ///
+  /// `password` is only included when the caller supplies a non-empty
+  /// value — sending an empty password on every save could be rejected
+  /// by validation or, worse, interpreted as a password change.
   Future<void> updateProfile(
       {required String name,
       required String email,
       required String phone,
       required String gender,
-      String password = ''}) async {
-    debugPrint(
-        '[PROFILE][UPDATE] Request → POST ${ApiEndpoints.updateProfile} | name:$name email:$email phone:$phone gender:$gender');
+      String? password}) async {
+    final sendsPassword = password != null && password.isNotEmpty;
+    // Field values are PII — log only which fields are being sent.
+    debugPrint('[PROFILE][UPDATE] Request → POST ${ApiEndpoints.updateProfile} '
+        '| fields: name,email,phone,gender${sendsPassword ? ',password' : ''}');
     try {
       final response = await _apiClient.dio.post(
         ApiEndpoints.updateProfile,
@@ -45,14 +52,12 @@ class UserRemoteDataSource {
           'email': email,
           'phone': phone,
           'gender': gender,
-          'password': password
+          if (sendsPassword) 'password': password,
         }),
       );
-      debugPrint(
-          '[PROFILE][UPDATE] Response status:${response.statusCode} body:${response.data}');
+      debugPrint('[PROFILE][UPDATE] Response status:${response.statusCode}');
     } on DioException catch (e) {
-      debugPrint(
-          '[PROFILE][UPDATE] Error status:${e.response?.statusCode} body:${e.response?.data}');
+      debugPrint('[PROFILE][UPDATE] Error status:${e.response?.statusCode}');
       throw mapDioException(e);
     }
   }

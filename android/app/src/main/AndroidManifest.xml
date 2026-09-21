@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required in the MAIN manifest so release builds can reach the
+         VCare API and Gemini. The debug/profile manifests declare it
+         only for the Flutter tool, not for release. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="vcare"
         android:name="${applicationName}"

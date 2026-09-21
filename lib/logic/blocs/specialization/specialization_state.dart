@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../data/models/specialization_model.dart';
 
 abstract class SpecializationState extends Equatable {
@@ -19,8 +20,10 @@ class SpecializationLoaded extends SpecializationState {
 }
 
 class SpecializationError extends SpecializationState {
-  final String message;
-  const SpecializationError(this.message);
+  /// Coded failure the UI localizes; `message` is the English fallback.
+  final AppErrorInfo error;
+  const SpecializationError(this.error);
+  String get message => error.message;
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [error];
 }

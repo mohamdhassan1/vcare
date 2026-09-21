@@ -54,7 +54,8 @@ class AppointmentRemoteDataSource {
     } catch (e) {
       debugPrint('[APPOINTMENTS] Unexpected error reading response: $e');
       throw ServerException(
-          'Could not read appointment data from the server response: $e');
+          'Could not read appointment data from the server response: $e',
+          code: AppErrorCode.invalidResponse);
     }
   }
 }

@@ -1,34 +1,44 @@
 import 'package:dio/dio.dart';
 import 'app_exception.dart';
 
+/// Turns a Dio failure into an [AppException] with a stable
+/// [AppErrorCode] (localized by the UI) and, when the backend sent a
+/// human-readable `message`, that text as [AppException.serverMessage].
 AppException mapDioException(DioException error) {
   switch (error.type) {
     case DioExceptionType.connectionTimeout:
     case DioExceptionType.sendTimeout:
     case DioExceptionType.receiveTimeout:
+      return const AppException('The request took too long. Please try again.',
+          code: AppErrorCode.timeout);
     case DioExceptionType.connectionError:
       return const NetworkException();
     case DioExceptionType.badResponse:
       final statusCode = error.response?.statusCode;
       final responseData = error.response?.data;
+      final serverMessage = _extractTopMessage(responseData);
       if (statusCode == 401) {
-        return UnauthorizedException(_extractTopMessage(responseData) ??
-            'Session expired. Please log in again.');
+        return UnauthorizedException(
+            serverMessage ?? 'Session expired. Please log in again.',
+            serverMessage);
       }
       if (statusCode == 422) {
         final fieldErrors = _extractFieldErrors(responseData);
         if (fieldErrors.isNotEmpty) return ValidationException(fieldErrors);
         return ServerException(
-            _extractTopMessage(responseData) ??
-                'Please check your information and try again.',
-            statusCode: statusCode);
+            serverMessage ?? 'Please check your information and try again.',
+            statusCode: statusCode,
+            code: AppErrorCode.validation,
+            serverMessage: serverMessage);
       }
       return ServerException(
-          _extractTopMessage(responseData) ??
-              _defaultMessageForStatus(statusCode),
-          statusCode: statusCode);
+          serverMessage ?? _defaultMessageForStatus(statusCode),
+          statusCode: statusCode,
+          code: _codeForStatus(statusCode),
+          serverMessage: serverMessage);
     case DioExceptionType.cancel:
-      return const AppException('Request was cancelled.');
+      return const AppException('Request was cancelled.',
+          code: AppErrorCode.cancelled);
     default:
       return const AppException('Something went wrong. Please try again.');
   }
@@ -37,7 +47,8 @@ AppException mapDioException(DioException error) {
 String? _extractTopMessage(dynamic responseData) {
   if (responseData is Map<String, dynamic> &&
       responseData['message'] is String) {
-    return responseData['message'] as String;
+    final message = (responseData['message'] as String).trim();
+    return message.isEmpty ? null : message;
   }
   return null;
 }
@@ -55,6 +66,22 @@ Map<String, List<String>> _extractFieldErrors(dynamic responseData) {
     }
   });
   return result;
+}
+
+AppErrorCode _codeForStatus(int? statusCode) {
+  switch (statusCode) {
+    case 400:
+      return AppErrorCode.badRequest;
+    case 403:
+      return AppErrorCode.forbidden;
+    case 404:
+      return AppErrorCode.notFound;
+    case 429:
+      return AppErrorCode.tooManyRequests;
+    default:
+      if (statusCode != null && statusCode >= 500) return AppErrorCode.server;
+      return AppErrorCode.unknown;
+  }
 }
 
 String _defaultMessageForStatus(int? statusCode) {

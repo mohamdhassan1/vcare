@@ -19,10 +19,9 @@ class SpecializationBloc
       final specializations = await _repository.getSpecializations();
       emit(SpecializationLoaded(specializations));
     } on AppException catch (e) {
-      emit(SpecializationError(e.message));
+      emit(SpecializationError(AppErrorInfo.from(e)));
     } catch (e) {
-      emit(
-          const SpecializationError('Something went wrong. Please try again.'));
+      emit(const SpecializationError(AppErrorInfo.unknown));
     }
   }
 }

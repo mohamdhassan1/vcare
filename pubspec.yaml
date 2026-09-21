@@ -51,3 +51,16 @@ flutter:
     - assets/images/
     - assets/images/onboarding/
     - assets/images/common/
+
+  # Bundled Arabic-capable font (SIL OFL, see assets/fonts/OFL-Tajawal.txt).
+  # Used as the fallback family behind Inter so Arabic UI text renders
+  # identically on Android and Web without a runtime font download.
+  fonts:
+    - family: Tajawal
+      fonts:
+        - asset: assets/fonts/Tajawal-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Tajawal-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Tajawal-Bold.ttf
+          weight: 700

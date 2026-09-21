@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vcare-web",
+      "runtimeExecutable": "flutter",
+      "runtimeArgs": ["run", "-d", "web-server", "--web-port", "8090", "--web-hostname", "localhost"],
+      "port": 8090
+    },
+    {
+      "name": "vcare-web-release",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "serve", "-l", "8091", "-s", "build/web"],
+      "port": 8091
+    }
+  ]
+}

@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../data/models/user_profile_model.dart';
 import '../../../data/repositories/profile_photo_repository.dart';
 import '../../../data/repositories/user_repository.dart';
 import 'profile_event.dart';
@@ -10,6 +12,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       : super(const ProfileLoading()) {
     on<ProfileStarted>(_onStarted);
     on<ProfilePhotoRequested>(_onPhotoRequested);
+    on<ProfilePhotoRemoved>(_onPhotoRemoved);
   }
 
   final UserRepository _userRepository;
@@ -18,24 +21,85 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   Future<void> _onStarted(
       ProfileStarted event, Emitter<ProfileState> emit) async {
     emit(const ProfileLoading());
+
+    final UserProfileModel profile;
     try {
-      final profile = await _userRepository.getProfile();
-      final savedPhoto = await _photoRepository.loadSavedPhoto();
-      emit(ProfileLoaded(profile, localPhotoBytes: savedPhoto));
+      profile = await _userRepository.getProfile();
     } on AppException catch (e) {
-      emit(ProfileError(e.message));
+      emit(ProfileError(AppErrorInfo.from(e)));
+      return;
     } catch (e) {
-      emit(const ProfileError('Something went wrong. Please try again.'));
+      debugPrint('[PROFILE] Unexpected error loading profile: $e');
+      emit(const ProfileError(AppErrorInfo.unknown));
+      return;
     }
+
+    // The photo is device-local and optional: a problem reading it must
+    // not hide the (successfully fetched) profile behind an error view.
+    Uint8List? savedPhoto;
+    ProfilePhotoError? photoError;
+    try {
+      savedPhoto = await _photoRepository.loadSavedPhoto();
+    } catch (e) {
+      debugPrint('[PHOTO] Could not load saved photo: $e');
+      photoError = ProfilePhotoError.loadFailed;
+    }
+    emit(ProfileLoaded(profile,
+        localPhotoBytes: savedPhoto, photoError: photoError));
   }
 
   Future<void> _onPhotoRequested(
       ProfilePhotoRequested event, Emitter<ProfileState> emit) async {
+    if (state is! ProfileLoaded) return;
+
+    Uint8List? bytes;
+    try {
+      bytes = await _photoRepository.pickImage(event.source);
+    } catch (e) {
+      debugPrint('[PHOTO] Picker failed: $e');
+      _emitPhotoError(ProfilePhotoError.pickFailed, emit);
+      return;
+    }
+    if (bytes == null) return; // user cancelled — nothing to report
+
+    // Re-read: the profile may have been refreshed while the picker
+    // was open, and we must not resurrect a stale state.
+    final current = state;
+    if (current is! ProfileLoaded) return;
+
+    try {
+      await _photoRepository.savePhoto(bytes);
+      emit(current.copyWith(localPhotoBytes: bytes));
+    } catch (e) {
+      debugPrint('[PHOTO] Save failed: $e');
+      // Still show the chosen photo for this session, but tell the user
+      // it will not survive a restart so they can retry.
+      _emitPhotoError(ProfilePhotoError.saveFailed, emit,
+          base: current.copyWith(localPhotoBytes: bytes));
+    }
+  }
+
+  Future<void> _onPhotoRemoved(
+      ProfilePhotoRemoved event, Emitter<ProfileState> emit) async {
     final current = state;
     if (current is! ProfileLoaded) return;
     try {
-      final bytes = await _photoRepository.pickImage(event.source);
-      if (bytes != null) emit(current.copyWith(localPhotoBytes: bytes));
-    } catch (_) {}
+      await _photoRepository.clearPhoto();
+      emit(current.copyWith(clearLocalPhoto: true));
+    } catch (e) {
+      debugPrint('[PHOTO] Remove failed: $e');
+      _emitPhotoError(ProfilePhotoError.removeFailed, emit);
+    }
+  }
+
+  /// Emits an error-free state first so two identical failures in a
+  /// row still produce a distinct state change (and thus a listener
+  /// notification) for the second one.
+  void _emitPhotoError(ProfilePhotoError error, Emitter<ProfileState> emit,
+      {ProfileLoaded? base}) {
+    final loaded = base ?? state;
+    if (loaded is! ProfileLoaded) return;
+    emit(loaded.copyWith());
+    emit(loaded.copyWith(photoError: error));
   }
 }

@@ -17,3 +17,8 @@ class ProfilePhotoRequested extends ProfileEvent {
   @override
   List<Object?> get props => [source];
 }
+
+/// User chose "Remove Photo": deletes the locally persisted photo.
+class ProfilePhotoRemoved extends ProfileEvent {
+  const ProfilePhotoRemoved();
+}

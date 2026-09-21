@@ -26,7 +26,8 @@ class DoctorRemoteDataSource {
     } catch (e) {
       debugPrint('[DOCTORS] Unexpected error reading response: $e');
       throw ServerException(
-          'Could not read doctor data from the server response: $e');
+          'Could not read doctor data from the server response: $e',
+          code: AppErrorCode.invalidResponse);
     }
   }
 
@@ -53,7 +54,8 @@ class DoctorRemoteDataSource {
     } catch (e) {
       debugPrint('[DOCTOR_DETAILS] Unexpected error reading response: $e');
       throw ServerException(
-          'Could not read doctor details from the server response: $e');
+          'Could not read doctor details from the server response: $e',
+          code: AppErrorCode.invalidResponse);
     }
   }
 
@@ -75,7 +77,8 @@ class DoctorRemoteDataSource {
     } catch (e) {
       debugPrint('[SEARCH] Unexpected error reading response: $e');
       throw ServerException(
-          'Could not read search results from the server response: $e');
+          'Could not read search results from the server response: $e',
+          code: AppErrorCode.invalidResponse);
     }
   }
 }

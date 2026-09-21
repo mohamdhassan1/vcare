@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../core/errors/app_exception.dart';
 
 abstract class BookAppointmentState extends Equatable {
   const BookAppointmentState();
@@ -23,8 +24,10 @@ class BookAppointmentSuccess extends BookAppointmentState {
 }
 
 class BookAppointmentFailure extends BookAppointmentState {
-  final String message;
-  const BookAppointmentFailure(this.message);
+  /// Coded failure the UI localizes; `message` is the English fallback.
+  final AppErrorInfo error;
+  const BookAppointmentFailure(this.error);
+  String get message => error.message;
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [error];
 }

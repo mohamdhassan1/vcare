@@ -1,0 +1,32 @@
+{
+  // VS Code Run/Debug configurations for VCare.
+  //
+  // Secrets are NOT in this file. The Gemini key lives in the git-ignored
+  // `.env` (copy `.env.example`), which Flutter reads through
+  // `--dart-define-from-file`, feeding String.fromEnvironment in EnvConfig.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "VCare (Chrome)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "cwd": "${workspaceFolder}",
+      "toolArgs": ["--dart-define-from-file=.env"]
+    },
+    {
+      "name": "VCare (Current device)",
+      "request": "launch",
+      "type": "dart",
+      "cwd": "${workspaceFolder}",
+      "toolArgs": ["--dart-define-from-file=.env"]
+    },
+    {
+      "name": "VCare (Chrome, no Gemini key)",
+      "request": "launch",
+      "type": "dart",
+      "deviceId": "chrome",
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}

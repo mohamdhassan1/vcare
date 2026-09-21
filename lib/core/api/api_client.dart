@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'api_endpoints.dart';
@@ -23,7 +25,10 @@ class ApiClient {
       ),
     );
 
-    dio.interceptors.add(AuthInterceptor(_tokenStorage));
+    dio.interceptors.add(AuthInterceptor(
+      _tokenStorage,
+      onUnauthorized: () => _sessionExpiredController.add(null),
+    ));
 
     // Only log requests/responses in debug builds — never in release.
     if (kDebugMode) {
@@ -40,5 +45,14 @@ class ApiClient {
   final TokenStorage _tokenStorage;
   late final Dio dio;
 
+  // Broadcast so the interceptor can fire regardless of whether the
+  // auth layer has subscribed yet; lives for the whole app lifetime.
+  final StreamController<void> _sessionExpiredController =
+      StreamController<void>.broadcast();
+
   TokenStorage get tokenStorage => _tokenStorage;
+
+  /// Emits once per rejected authenticated request (HTTP 401) after the
+  /// stored token has already been cleared by [AuthInterceptor].
+  Stream<void> get onSessionExpired => _sessionExpiredController.stream;
 }

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import '../../../core/errors/app_exception.dart';
 
 abstract class AuthState extends Equatable {
   const AuthState();
@@ -24,13 +25,22 @@ class AuthSuccess extends AuthState {
 }
 
 class AuthFailure extends AuthState {
-  final String message;
-  const AuthFailure(this.message);
+  /// Coded failure the UI localizes; `message` is the English fallback.
+  final AppErrorInfo error;
+  const AuthFailure(this.error);
+  String get message => error.message;
 
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [error];
 }
 
 class AuthLoggedOut extends AuthState {
   const AuthLoggedOut();
+}
+
+/// The stored token was rejected by the server (HTTP 401) and has been
+/// cleared. Distinct from [AuthLoggedOut] so the app can send the user
+/// straight to Sign In (with an explanation) instead of Onboarding.
+class AuthSessionExpired extends AuthState {
+  const AuthSessionExpired();
 }

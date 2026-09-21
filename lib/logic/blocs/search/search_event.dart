@@ -7,7 +7,12 @@ abstract class SearchEvent extends Equatable {
 }
 
 class SearchOpened extends SearchEvent {
-  const SearchOpened();
+  /// [specializationId] pre-selects that specialty filter — used when
+  /// the screen is opened from a specialty tile (Home / Specialties).
+  const SearchOpened({this.specializationId});
+  final int? specializationId;
+  @override
+  List<Object?> get props => [specializationId];
 }
 
 class SearchQueryChanged extends SearchEvent {
