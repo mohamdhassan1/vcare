@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Launcher icon background: VCare's light surface, so the blue mark
+         reads on any wallpaper. -->
+    <color name="ic_launcher_background">#FFFFFFFF</color>
+</resources>
