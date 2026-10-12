@@ -61,3 +61,16 @@ String formatAppointmentTime(BuildContext context, String raw) {
   if (parsed == null) return raw;
   return '${formatLongDate(context, parsed)} · ${formatTime(context, parsed)}';
 }
+
+/// Distance for display: metres under 1 km, otherwise kilometres to one
+/// decimal. Only ever called with a real measured distance — nothing here
+/// invents a value when the user's location is unknown.
+String formatDistance(AppLocalizations l10n, double metres) {
+  if (metres < 1000) {
+    return l10n.distanceMetres(metres.round().toString());
+  }
+  final km = metres / 1000;
+  // One decimal up to 10 km, then whole kilometres — "1.2 km", "14 km".
+  return l10n.distanceKilometres(
+      km < 10 ? km.toStringAsFixed(1) : km.round().toString());
+}

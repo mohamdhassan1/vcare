@@ -200,12 +200,6 @@ abstract class AppLocalizations {
   /// **'Your session has expired. Please sign in again.'**
   String get sessionExpired;
 
-  /// No description provided for @featureComingSoon.
-  ///
-  /// In en, this message translates to:
-  /// **'{feature} is coming in a future update.'**
-  String featureComingSoon(String feature);
-
   /// No description provided for @onboardingHeadline.
   ///
   /// In en, this message translates to:
@@ -1315,6 +1309,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This page could not be opened.'**
   String get pageCouldNotOpen;
+
+  /// No description provided for @nearestDoctorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nearest Doctors'**
+  String get nearestDoctorTitle;
+
+  /// No description provided for @nearestDoctorDemoNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Distances use demo clinic locations, not real addresses.'**
+  String get nearestDoctorDemoNote;
+
+  /// No description provided for @nearestDoctorNoCoordinates.
+  ///
+  /// In en, this message translates to:
+  /// **'No doctors have a location on file yet.'**
+  String get nearestDoctorNoCoordinates;
+
+  /// No description provided for @nearestDoctorPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'VCare needs your location to find the nearest doctors.'**
+  String get nearestDoctorPermissionDenied;
+
+  /// No description provided for @nearestDoctorPermissionDeniedForever.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is turned off for VCare. Enable it in Settings to see the nearest doctors.'**
+  String get nearestDoctorPermissionDeniedForever;
+
+  /// No description provided for @nearestDoctorServiceDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Location services are turned off. Turn them on to see the nearest doctors.'**
+  String get nearestDoctorServiceDisabled;
+
+  /// No description provided for @nearestDoctorUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not determine your location. Please try again.'**
+  String get nearestDoctorUnavailable;
+
+  /// No description provided for @nearestDoctorOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
+  String get nearestDoctorOpenSettings;
+
+  /// No description provided for @nearestDoctorBrowseAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse all doctors'**
+  String get nearestDoctorBrowseAll;
+
+  /// No description provided for @distanceMetres.
+  ///
+  /// In en, this message translates to:
+  /// **'{metres} m away'**
+  String distanceMetres(String metres);
+
+  /// No description provided for @distanceKilometres.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km away'**
+  String distanceKilometres(String km);
 }
 
 class _AppLocalizationsDelegate

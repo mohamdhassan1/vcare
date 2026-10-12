@@ -21,8 +21,6 @@
   "browseDoctors": "Browse Doctors",
   "somethingWentWrong": "Something went wrong. Please try again.",
   "sessionExpired": "Your session has expired. Please sign in again.",
-  "featureComingSoon": "{feature} is coming in a future update.",
-  "@featureComingSoon": {"placeholders": {"feature": {"type": "String"}}},
 
   "onboardingHeadline": "Best Doctor\nAppointment App",
   "onboardingSubtitle": "Manage and schedule all of your medical appointments easily with VCare to get a new experience.",
@@ -236,5 +234,19 @@
   "aiEmptyResponse": "The assistant did not return a response. Please try again.",
   "aiInvalidRequest": "The AI request was invalid. Please try again.",
 
-  "pageCouldNotOpen": "This page could not be opened."
+  "pageCouldNotOpen": "This page could not be opened.",
+
+  "nearestDoctorTitle": "Nearest Doctors",
+  "nearestDoctorDemoNote": "Distances use demo clinic locations, not real addresses.",
+  "nearestDoctorNoCoordinates": "No doctors have a location on file yet.",
+  "nearestDoctorPermissionDenied": "VCare needs your location to find the nearest doctors.",
+  "nearestDoctorPermissionDeniedForever": "Location is turned off for VCare. Enable it in Settings to see the nearest doctors.",
+  "nearestDoctorServiceDisabled": "Location services are turned off. Turn them on to see the nearest doctors.",
+  "nearestDoctorUnavailable": "Could not determine your location. Please try again.",
+  "nearestDoctorOpenSettings": "Open Settings",
+  "nearestDoctorBrowseAll": "Browse all doctors",
+  "distanceMetres": "{metres} m away",
+  "@distanceMetres": { "placeholders": { "metres": { "type": "String" } } },
+  "distanceKilometres": "{km} km away",
+  "@distanceKilometres": { "placeholders": { "km": { "type": "String" } } }
 }

@@ -15,6 +15,12 @@ class DoctorModel {
   final String? startTime;
   final String? endTime;
 
+  /// Clinic coordinates, when the backend supplies them. Null for any doctor
+  /// without a location — the nearest-doctor feature skips those rather than
+  /// showing a fabricated distance.
+  final double? latitude;
+  final double? longitude;
+
   const DoctorModel({
     required this.id,
     required this.name,
@@ -28,6 +34,8 @@ class DoctorModel {
     this.appointPrice,
     this.startTime,
     this.endTime,
+    this.latitude,
+    this.longitude,
   });
 
   factory DoctorModel.fromJson(Map<String, dynamic> json) {
@@ -48,7 +56,16 @@ class DoctorModel {
       appointPrice: json['appoint_price'] is num ? json['appoint_price'] as num : num.tryParse('${json['appoint_price']}'),
       startTime: _cleanTime(json['start_time']),
       endTime: _cleanTime(json['end_time']),
+      latitude: _parseCoordinate(json['latitude'] ?? json['lat']),
+      longitude: _parseCoordinate(json['longitude'] ?? json['lng']),
     );
+  }
+
+  /// Accepts a number or a numeric string; anything else becomes null.
+  static double? _parseCoordinate(dynamic value) {
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
   }
 
   static String? _cleanTime(dynamic value) {

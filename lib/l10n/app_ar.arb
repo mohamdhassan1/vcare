@@ -19,8 +19,6 @@
   "browseDoctors": "تصفح الأطباء",
   "somethingWentWrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
   "sessionExpired": "انتهت جلستك. يرجى تسجيل الدخول مرة أخرى.",
-  "featureComingSoon": "{feature} سيتوفر في تحديث قادم.",
-  "@featureComingSoon": {"placeholders": {"feature": {"type": "String"}}},
 
   "onboardingHeadline": "أفضل تطبيق لحجز\nمواعيد الأطباء",
   "onboardingSubtitle": "نظّم مواعيدك الطبية واحجزها بسهولة مع VCare لتجربة جديدة.",
@@ -229,5 +227,17 @@
   "aiEmptyResponse": "لم يُرجع المساعد أي رد. يرجى المحاولة مرة أخرى.",
   "aiInvalidRequest": "طلب المساعد غير صالح. يرجى المحاولة مرة أخرى.",
 
-  "pageCouldNotOpen": "تعذر فتح هذه الصفحة."
+  "pageCouldNotOpen": "تعذر فتح هذه الصفحة.",
+
+  "nearestDoctorTitle": "أقرب الأطباء",
+  "nearestDoctorDemoNote": "المسافات مبنية على مواقع عيادات تجريبية وليست عناوين حقيقية.",
+  "nearestDoctorNoCoordinates": "لا يوجد أطباء لديهم موقع مسجل حتى الآن.",
+  "nearestDoctorPermissionDenied": "يحتاج تطبيق VCare إلى موقعك للعثور على أقرب الأطباء.",
+  "nearestDoctorPermissionDeniedForever": "الوصول إلى الموقع معطّل لتطبيق VCare. فعّله من الإعدادات لعرض أقرب الأطباء.",
+  "nearestDoctorServiceDisabled": "خدمات الموقع معطّلة. فعّلها لعرض أقرب الأطباء.",
+  "nearestDoctorUnavailable": "تعذر تحديد موقعك. يرجى المحاولة مرة أخرى.",
+  "nearestDoctorOpenSettings": "فتح الإعدادات",
+  "nearestDoctorBrowseAll": "تصفح كل الأطباء",
+  "distanceMetres": "يبعد {metres} متر",
+  "distanceKilometres": "يبعد {km} كم"
 }

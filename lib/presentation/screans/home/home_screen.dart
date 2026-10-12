@@ -31,10 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
     context.read<HomeBloc>().add(const HomeStarted());
   }
 
-  void _notAvailableYet(String feature) {
-    AppSnackBar.show(context, context.l10n.featureComingSoon(feature));
-  }
-
   /// Localized one-line summary of the sections that failed, shown
   /// once as a SnackBar (the sections themselves also show inline
   /// errors with Retry).
@@ -236,7 +232,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           minimumSize:
                               const Size(140, AppDimensions.minTouchTarget),
                         ),
-                        onPressed: () => _notAvailableYet(l10n.doctorListing),
+                        onPressed: () => Navigator.pushNamed(
+                            context, AppRoutes.nearestDoctors),
                         child: Text(l10n.findNearby),
                       ),
                     ],

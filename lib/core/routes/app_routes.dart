@@ -16,6 +16,7 @@ class AppRoutes {
 
   static const String doctorList = '/doctors';
   static const String doctorDetails = '/doctors/details';
+  static const String nearestDoctors = '/doctors/nearest';
 
   static const String bookAppointment = '/appointments/book';
   static const String myAppointments = '/appointments';

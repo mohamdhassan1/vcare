@@ -80,10 +80,15 @@ class DoctorPhoto extends StatelessWidget {
 }
 
 class DoctorCard extends StatelessWidget {
-  const DoctorCard({super.key, required this.doctor, this.onTap});
+  const DoctorCard(
+      {super.key, required this.doctor, this.onTap, this.distanceLabel});
 
   final DoctorModel doctor;
   final VoidCallback? onTap;
+
+  /// Optional "1.2 km away" chip, set only by the nearest-doctor screen.
+  /// Null everywhere else, so every other list renders exactly as before.
+  final String? distanceLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +157,18 @@ class DoctorCard extends StatelessWidget {
                                 color: palette.primary,
                                 fontWeight: FontWeight.w600)),
                       ),
+                    if (distanceLabel != null) ...[
+                      const SizedBox(width: AppDimensions.spaceSm),
+                      Icon(Icons.near_me_rounded,
+                          size: AppDimensions.iconSm, color: palette.primary),
+                      const SizedBox(width: AppDimensions.spaceXs),
+                      Flexible(
+                        child: Text(distanceLabel!,
+                            style: context.textTheme.labelSmall,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis),
+                      ),
+                    ],
                   ],
                 ),
               ],

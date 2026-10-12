@@ -6,6 +6,7 @@ import 'package:vcare/presentation/screans/auth/sign_in_screen.dart';
 import 'package:vcare/presentation/screans/auth/sign_up_screen.dart';
 import 'package:vcare/presentation/screans/doctor/doctor_details_screen.dart';
 import 'package:vcare/presentation/screans/doctor/doctor_list_screen.dart';
+import 'package:vcare/presentation/screans/doctor/nearest_doctor_screen.dart';
 import 'package:vcare/presentation/screans/favorites/favorites_screen.dart';
 import 'package:vcare/presentation/screans/home/home_shell_screen.dart';
 import 'package:vcare/presentation/screans/notifications/notifications_screen.dart';
@@ -63,6 +64,8 @@ class AppRouter {
             builder: (_) => const SpecializationListScreen());
       case AppRoutes.doctorList:
         return MaterialPageRoute(builder: (_) => const DoctorListScreen());
+      case AppRoutes.nearestDoctors:
+        return MaterialPageRoute(builder: (_) => const NearestDoctorScreen());
       case AppRoutes.doctorDetails:
         // Accepts the doctor id alone, or {doctorId, imageUrl} so the
         // details header can show the photo (and finish the Hero flight)

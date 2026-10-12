@@ -62,11 +62,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your session has expired. Please sign in again.';
 
   @override
-  String featureComingSoon(String feature) {
-    return '$feature is coming in a future update.';
-  }
-
-  @override
   String get onboardingHeadline => 'Best Doctor\nAppointment App';
 
   @override
@@ -674,4 +669,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pageCouldNotOpen => 'This page could not be opened.';
+
+  @override
+  String get nearestDoctorTitle => 'Nearest Doctors';
+
+  @override
+  String get nearestDoctorDemoNote =>
+      'Distances use demo clinic locations, not real addresses.';
+
+  @override
+  String get nearestDoctorNoCoordinates =>
+      'No doctors have a location on file yet.';
+
+  @override
+  String get nearestDoctorPermissionDenied =>
+      'VCare needs your location to find the nearest doctors.';
+
+  @override
+  String get nearestDoctorPermissionDeniedForever =>
+      'Location is turned off for VCare. Enable it in Settings to see the nearest doctors.';
+
+  @override
+  String get nearestDoctorServiceDisabled =>
+      'Location services are turned off. Turn them on to see the nearest doctors.';
+
+  @override
+  String get nearestDoctorUnavailable =>
+      'Could not determine your location. Please try again.';
+
+  @override
+  String get nearestDoctorOpenSettings => 'Open Settings';
+
+  @override
+  String get nearestDoctorBrowseAll => 'Browse all doctors';
+
+  @override
+  String distanceMetres(String metres) {
+    return '$metres m away';
+  }
+
+  @override
+  String distanceKilometres(String km) {
+    return '$km km away';
+  }
 }

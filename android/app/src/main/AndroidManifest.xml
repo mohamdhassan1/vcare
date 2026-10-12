@@ -4,6 +4,13 @@
          only for the Flutter tool, not for release. -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
+    <!-- Foreground location, for the "nearest doctor" feature only. Both are
+         requested at the moment the user taps Find Nearby, never at startup.
+         ACCESS_BACKGROUND_LOCATION is deliberately NOT declared: the feature
+         never needs the device's position while the app is closed. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
     <application
         android:label="VCare"
         android:name="${applicationName}"

@@ -35,7 +35,9 @@ import 'l10n/app_localizations.dart';
 
 import 'logic/blocs/auth/auth_bloc.dart';
 import 'logic/blocs/auth/auth_state.dart';
+import 'core/location/location_service.dart';
 import 'logic/blocs/doctor/doctor_bloc.dart';
+import 'logic/blocs/nearest_doctor/nearest_doctor_bloc.dart';
 import 'logic/blocs/favorites/favorites_bloc.dart';
 import 'logic/blocs/favorites/favorites_event.dart';
 import 'logic/blocs/favorites/favorites_state.dart';
@@ -162,6 +164,11 @@ class VCareApp extends StatelessWidget {
           RepositoryProvider<AIChatRepository>(
             create: (_) => aiChatRepository,
           ),
+          // Provided like a repository so both the bloc and the nearest-doctor
+          // screen share one instance, and tests can swap in a stub.
+          RepositoryProvider<LocationService>(
+            create: (_) => const GeolocatorLocationService(),
+          ),
         ],
         child: MultiBlocProvider(
           providers: [
@@ -192,6 +199,14 @@ class VCareApp extends StatelessWidget {
               create: (context) {
                 return DoctorBloc(
                   context.read<DoctorRepository>(),
+                );
+              },
+            ),
+            BlocProvider<NearestDoctorBloc>(
+              create: (context) {
+                return NearestDoctorBloc(
+                  context.read<DoctorRepository>(),
+                  context.read<LocationService>(),
                 );
               },
             ),

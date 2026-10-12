@@ -4,7 +4,12 @@
 class ApiEndpoints {
   ApiEndpoints._();
 
-  static const String baseUrl = 'https://vcare.integration25.com/api';
+  // The original host (vcare.integration25.com) no longer resolves — its
+  // domain registration lapsed, so DNS returns NXDOMAIN at the apex. This
+  // points at the restored VCare API, which serves the same contract.
+  // 127.0.0.1 reaches the development machine over `adb reverse tcp:8000
+  // tcp:8000`; swap in the machine's LAN address for an untethered demo.
+  static const String baseUrl = 'http://127.0.0.1:8000/api';
 
   // Auth Module
   static const String register = '/auth/register';
